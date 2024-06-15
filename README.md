@@ -4,105 +4,145 @@
 
 CollabDoc is a collaborative document editor similar to Google Docs or CodeShare. It allows multiple users to edit documents in real-time with data consistency and conflict resolution.
 
+## Architecture
+
+![Architecture Diagram](misc/arch-diagram.png)
+
 ## 7-Day Development Plan
 
-### Day 1: Project Initialization and Basic Setup
-- **Tasks:**
-  - Set up a Git repository to track project changes.
-  - Initialize a Go module and set up the basic folder structure as shown in your current file structure.
-  - Create a simple `main.go` file to start the Go application.
-  - Set up a basic WebSocket server in `cmd/server/server.go`.
-  - Create a basic client application in `cmd/client/client.go`.
-- **Goals:**
-  - Have a running Go application with a basic WebSocket server and client structure.
-- **Details:**
-  - Use `go mod init collabdoc` to initialize the module.
-  - Implement a basic WebSocket server using the `github.com/gorilla/websocket` package.
-  - Create a simple HTML client to test the WebSocket connection.
+### Day 1: Project Initialization and Basic WebSocket Server Setup
 
-### Day 2: Implement Client-Server Communication
-- **Tasks:**
-  - Develop the WebSocket server to handle client connections, disconnections, and basic message broadcasting.
-  - Implement the client-side WebSocket communication to send and receive messages.
-- **Goals:**
-  - Establish a WebSocket connection between the server and multiple clients.
-  - Enable basic message exchange between clients through the server.
-- **Details:**
-  - Handle basic WebSocket events such as `onopen`, `onmessage`, `onclose` in both server and client code.
-  - Test the communication using a simple HTML client.
+**Tasks:**
+- Set up a Git repository to track project changes.
+- Initialize a Go module and set up the basic folder structure.
+- Create a basic WebSocket server in `cmd/server/server.go`.
+- Create a simple web client in `static/index.html`.
+- Write Dockerfile for the WebSocket server.
+- Test the WebSocket server and web client.
 
-### Day 3: Persistence Service and Database Integration
-- **Tasks:**
-  - Set up a NoSQL database (e.g., MongoDB) and connect it to your Go application.
-  - Implement basic CRUD operations for document data in `core/server/server.go`.
-  - Develop the Persistence Service to handle data storage and retrieval.
-- **Goals:**
-  - Save and retrieve document data from the NoSQL database.
-- **Details:**
-  - Use the `go.mongodb.org/mongo-driver/mongo` package for MongoDB integration.
-  - Create data models and schemas for document storage.
-  - Implement functions for creating, reading, updating, and deleting documents.
+**Goals:**
+- Have a running Go WebSocket server and web client.
+- Containerize the WebSocket server.
 
-### Day 4: Document State Service and Conflict Resolution
-- **Tasks:**
-  - Implement the Document State Service to manage real-time document states.
-  - Develop conflict resolution mechanisms to handle concurrent edits.
-- **Goals:**
-  - Ensure consistent document states across multiple clients.
-- **Details:**
-  - Implement state synchronization and conflict resolution algorithms.
-  - Use operational transformation (OT) or conflict-free replicated data types (CRDTs) for conflict resolution.
+**Details:**
+- Use `go mod init collabdoc` to initialize the module.
+- Implement a basic WebSocket server using the `github.com/gorilla/websocket` package.
+- Create a simple HTML client to test the WebSocket connection.
+- Write a Dockerfile to containerize the WebSocket server.
 
-### Day 5: Centralized Service and Node Management
-- **Tasks:**
-  - Develop the Centralized Service for node management and user authentication.
-  - Implement user authentication and authorization mechanisms.
-- **Goals:**
-  - Manage client nodes and authenticate users.
-- **Details:**
-  - Use JWT or OAuth for authentication.
-  - Implement user registration, login, and session management.
+### Day 2: Implement Document State Service
 
-### Day 6: Custom Container Implementation in Go
-- **Tasks:**
-  - Create a basic container runtime in Go.
-  - Implement features to start, stop, and manage containers.
-  - Build isolated environments for running services.
-- **Goals:**
-  - Implement a minimal container runtime to isolate and run services.
-- **Details:**
-  - Use Go to create isolated namespaces and control groups (cgroups).
-  - Implement basic functionality to run a process in an isolated environment.
-  - Research and utilize libraries like `github.com/opencontainers/runc` for reference.
+**Tasks:**
+- Create the Document State Service with Conflict Resolution and State Synchronizer in `core/state/state.go`.
+- Write Dockerfile for the Document State Service.
+- Implement basic conflict resolution and state synchronization logic.
 
-### Day 7: Kubernetes Setup and Deployment
-- **Tasks:**
-  - Set up a Kubernetes cluster (using Minikube, Kind, or a cloud provider like GKE, EKS, or AKS).
-  - Write Kubernetes deployment and service manifests for each containerized service.
-  - Deploy the application to the Kubernetes cluster.
-  - Write comprehensive documentation and create a user guide.
-- **Goals:**
-  - Deploy and manage custom containers with Kubernetes.
-  - Ensure reliable and fault-tolerant operations.
-- **Details:**
-  - Create deployment YAML files for each service.
-  - Create service YAML files to expose the deployments.
-  - Deploy the services to the Kubernetes cluster and ensure they are running properly.
-  - Document the setup, usage, and maintenance procedures in the README.md file.
+**Goals:**
+- Have a working Document State Service.
+- Containerize the Document State Service.
 
-## Development
+**Details:**
+- Use Operational Transformation (OT) or Conflict-Free Replicated Data Types (CRDTs) for conflict resolution.
+- Ensure the state synchronizer correctly updates the document state across clients.
 
-### Prerequisites
+### Day 3: Implement Persistence Service
 
-- Go (https://golang.org/doc/install)
-- MongoDB (https://docs.mongodb.com/manual/installation/)
-- Podman (https://podman.io/getting-started/installation)
-- Kubernetes (https://kubernetes.io/docs/setup/)
-- kubectl (https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+**Tasks:**
+- Create the Persistence Service with Recovery Service in `core/persistence/persistence.go`.
+- Set up MongoDB and connect it to the Persistence Service.
+- Write Dockerfile for the Persistence Service.
 
-### Build and Run
+**Goals:**
+- Have a working Persistence Service with MongoDB integration.
+- Containerize the Persistence Service.
 
-To build the Go applications, run:
+**Details:**
+- Use `go.mongodb.org/mongo-driver/mongo` package for MongoDB integration.
+- Implement CRUD operations for document data.
 
-```sh
-make build
+### Day 4: Implement Centralized Service
+
+**Tasks:**
+- Create the Centralized Service for Node Management and User Authentication in `core/centralized/centralized.go`.
+- Implement user authentication using JWT or OAuth.
+- Write Dockerfile for the Centralized Service.
+
+**Goals:**
+- Have a working Centralized Service with user authentication.
+- Containerize the Centralized Service.
+
+**Details:**
+- Implement user registration, login, and session management.
+- Manage nodes and distribute client connections among them.
+
+### Day 5: Implement Replication Service
+
+**Tasks:**
+- Create the Replication Service in `core/replication/replication.go`.
+- Write Dockerfile for the Replication Service.
+- Implement replication logic to keep document replicas in sync.
+
+**Goals:**
+- Have a working Replication Service.
+- Containerize the Replication Service.
+
+**Details:**
+- Ensure that document replicas are consistently synchronized across different instances.
+
+### Day 6: Containerization and Kubernetes Setup
+
+**Tasks:**
+- Write Kubernetes deployment and service manifests for each microservice.
+- Set up a Kubernetes cluster using Minikube or a cloud provider.
+- Deploy all microservices to the Kubernetes cluster.
+
+**Goals:**
+- Have all microservices containerized and deployed on Kubernetes.
+
+**Details:**
+- Create deployment YAML files for each service.
+- Create service YAML files to expose the deployments.
+- Ensure all services are running correctly on the Kubernetes cluster.
+
+### Day 7: Testing, Scaling, and Documentation
+
+**Tasks:**
+- Conduct thorough testing of all microservices.
+- Implement auto-scaling and monitoring for the Kubernetes cluster using Prometheus and Grafana.
+- Write comprehensive documentation and create a user guide.
+
+**Goals:**
+- Ensure reliable and fault-tolerant operations with Kubernetes.
+- Document the setup, usage, and maintenance procedures.
+
+**Details:**
+- Set up Horizontal Pod Autoscaler (HPA) for scaling the application.
+- Use Prometheus and Grafana for monitoring the Kubernetes cluster.
+- Document the deployment process and usage instructions.
+
+## Example Dockerfile for WebSocket Server
+
+```dockerfile
+# Use the official Golang image as the base image
+FROM golang:1.16-alpine
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy go.mod and go.sum files
+COPY go.mod go.sum ./
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
+RUN go build -o server cmd/server/server.go
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
+
+# Command to run the executable
+CMD ["./server"]
